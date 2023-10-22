@@ -1,6 +1,7 @@
 from flask import Flask, request, send_from_directory, jsonify
 from pytube import YouTube
 import os
+from flask import Response, stream_with_context
 
 app = Flask(__name__)
 DOWNLOAD_FOLDER = "downloads"
@@ -8,6 +9,11 @@ if not os.path.exists(DOWNLOAD_FOLDER):
     os.makedirs(DOWNLOAD_FOLDER)
 
 
+# TODO: Download playlists
+# TODO: Handle when 404?
+# TODO: Download by searching for a video
+# TODO: Download video with no audio
+# TODO: Add logging for debugging
 @app.route('/download', methods=['POST'])
 def download():
     url = request.json.get('url')
@@ -43,9 +49,18 @@ def download():
         return jsonify({"error": str(e)}), 500
 
 
+
 @app.route('/videos/<filename>', methods=['GET'])
 def serve_video(filename):
-    return send_from_directory(DOWNLOAD_FOLDER, filename)
+    def generate():
+        with open(os.path.join(DOWNLOAD_FOLDER, filename), "rb") as f:
+            while True:
+                chunk = f.read(4096)  # read 4 KB at a time
+                if not chunk:
+                    break
+                yield chunk
+    return Response(stream_with_context(generate()), content_type="video/mp4")
+
 
 
 @app.route('/videos/<filename>', methods=['DELETE'])
