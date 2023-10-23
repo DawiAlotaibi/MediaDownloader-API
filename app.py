@@ -29,34 +29,33 @@ def download():
         url = request.json.get('url')
         extension = request.json.get('ext')
         audio_only = request.json.get('audio_only')
+
         if not url:
             return jsonify({"error": "URL is required"}), 400
         if not extension:
             extension = "mp4"
-        if not audio_only or audio_only.lower() == "false":
-            audio_only = False
         if extension == "mp3" and not audio_only:
             return jsonify({"status": "error", "Wrong extension or missing parameters": f"{extension} extension "
                                                                                         f"requires audio_only to be "
                                                                                         f"True"}), 500
-        elif not audio_only:
-            yt = YouTube(url)
-            video_stream = yt.streams.filter(progressive=True, file_extension=extension).first()
-            video_filename = video_stream.default_filename.split(".")[0] + f".{extension}"
-            if check_cache(video_filename):
-                return send_from_directory(DOWNLOAD_FOLDER, video_filename)
-            else:
-                video_stream.download(DOWNLOAD_FOLDER)
-                return send_from_directory(DOWNLOAD_FOLDER, video_filename)
 
-        # WIP
-        elif audio_only:
-            yt = YouTube(url)
-            video_stream = yt.streams.filter(only_audio=audio_only, file_extension="mp4").first()
-            video_filename = video_stream.default_filename.split(".")[0] + f".{extension}"
-            serve_video(video_filename)
-            video_stream.download(output_path=DOWNLOAD_FOLDER, filename=video_filename)
-            return jsonify({"status": "success", "filename": video_filename})
+        yt = YouTube(url)
+        # Append v or a respectively if its an audio or video file
+        if audio_only:
+            video_stream = yt.streams.filter(
+                only_audio=audio_only, file_extension="mp4").first()
+            video_filename = f'a-{video_stream.default_filename.split(".")[0]}.{extension}'
+        else:
+            video_stream = yt.streams.filter(progressive=True,
+                                             file_extension=extension).first()
+            video_filename = f'v-{video_stream.default_filename.split(".")[0]}.{extension}'
+
+        if check_cache(video_filename):
+            return send_from_directory(DOWNLOAD_FOLDER, video_filename)
+        else:
+            video_stream.download(
+                filename=f'{DOWNLOAD_FOLDER}/{video_filename}')
+            return send_from_directory(DOWNLOAD_FOLDER, video_filename)
 
     except UnboundLocalError:
         return 'ERROR: Make sure to supply the correct parameters', 500
@@ -65,18 +64,14 @@ def download():
         return 'ERROR: Make sure to supply the correct parameters', 500
 
 
-
 def check_cache(filename):
     file_path = os.path.join(DOWNLOAD_FOLDER, filename)
     if os.path.exists(file_path):
         print(f'File {filename} found in cache')
         return True
-
     else:
         print(f'File {filename} not found, proceed to download')
         return False
-
-
 
 
 @app.route('/videos/<filename>', methods=['DELETE'])
