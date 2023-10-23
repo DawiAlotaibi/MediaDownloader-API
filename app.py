@@ -5,9 +5,6 @@ from flask import Response, stream_with_context
 
 app = Flask(__name__)
 DOWNLOAD_FOLDER = "downloads"
-if not os.path.exists(DOWNLOAD_FOLDER):
-    os.makedirs(DOWNLOAD_FOLDER)
-
 
 # TODO: Download playlists
 # TODO: Handle when 404?
@@ -18,6 +15,7 @@ if not os.path.exists(DOWNLOAD_FOLDER):
 # TODO: Implement resolution for caching
 # TODO: Add documentation for route usage (params, etc)
 
+
 @app.route('/', methods=['GET'])
 def index():
     return 'API works! Make sure to use POST request on /download path', 200
@@ -25,6 +23,10 @@ def index():
 
 @app.route('/download', methods=['POST'])
 def download():
+
+    if not os.path.exists(DOWNLOAD_FOLDER):
+        os.makedirs(DOWNLOAD_FOLDER)
+
     try:
         url = request.json.get('url')
         extension = request.json.get('ext')
