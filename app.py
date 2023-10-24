@@ -1,3 +1,5 @@
+import pathlib
+
 from flask import Flask, request, send_from_directory, jsonify
 import instaloader
 from pytube import YouTube
@@ -25,6 +27,7 @@ def index():
 @app.route('/download', methods=['POST'])
 def download():
 
+    global returnFile
     if not os.path.exists(DOWNLOAD_FOLDER):
         os.makedirs(DOWNLOAD_FOLDER)
 
@@ -41,7 +44,11 @@ def download():
             post = instaloader.Post.from_shortcode(L.context, shortcode)
             L.download_post(post,shortcode)
             dir = os.listdir(path=DOWNLOAD_FOLDER + '/' + shortcode)
-            return send_from_directory(DOWNLOAD_FOLDER + '/' + shortcode, dir[2])
+            returnFile = ""
+            for file in dir:
+                if pathlib.Path(file).suffix == ".mp4":
+                    returnFile = file
+            return send_from_directory(DOWNLOAD_FOLDER + '/' + shortcode, returnFile)
         elif "youtube" in url:
             if not extension:
                 extension = "mp4"
