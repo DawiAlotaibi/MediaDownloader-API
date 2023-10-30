@@ -1,5 +1,5 @@
 # MediaDownloader-API
-This is a list of APIs to download YouTube videos. It uses [pytube](https://github.com/pytube/pytube) to download the videos. this is a complementary project for [Media-Downloader](https://github.com/Atturu/Media-Downloader).
+This is a list of APIs to download YouTube and instagram posts videos. It uses [pytube](https://github.com/pytube/pytube) and [instaloader](https://github.com/instaloader/instaloader) to download the videos. this is a complementary project for [Media-Downloader](https://github.com/Atturu/Media-Downloader).
 
 # How to use
 
@@ -15,3 +15,4 @@ To run the test cases just make sure the app is running and then run:
 ```commandline
 pytest test_app.py
 ```
+
