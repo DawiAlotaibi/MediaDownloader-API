@@ -62,7 +62,7 @@ def download():
             if audio_only:
                 video_streams = yt.streams.filter(only_audio=True).order_by('abr').desc()
                 video_stream = video_streams.first()  # This should be the highest bitrate stream
-                video_filename = f'{video_stream.default_filename.split(".")[0]}.{extension}'
+                video_filename = f'a-{video_stream.default_filename.split(".")[0]}.{extension}'
             else:
                 video_stream = yt.streams.filter(progressive=True,
                                                  file_extension=extension).first()
