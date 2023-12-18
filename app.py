@@ -9,6 +9,7 @@ from flask import Response, stream_with_context
 app = Flask(__name__)
 DOWNLOAD_FOLDER = "downloads"
 
+
 # TODO: Download playlists
 # TODO: Handle when 404?
 # TODO: Download by searching for a video
@@ -26,7 +27,6 @@ def index():
 
 @app.route('/download', methods=['POST'])
 def download():
-
     global returnFile
     if not os.path.exists(DOWNLOAD_FOLDER):
         os.makedirs(DOWNLOAD_FOLDER)
@@ -40,9 +40,9 @@ def download():
             return jsonify({"error": "URL is required"}), 400
         if "instagram" in url:
             shortcode = url.split('p/')[1].strip('/ ')
-            L = instaloader.Instaloader(dirname_pattern= DOWNLOAD_FOLDER + '/' + shortcode )
+            L = instaloader.Instaloader(dirname_pattern=DOWNLOAD_FOLDER + '/' + shortcode)
             post = instaloader.Post.from_shortcode(L.context, shortcode)
-            L.download_post(post,shortcode)
+            L.download_post(post, shortcode)
             dir = os.listdir(path=DOWNLOAD_FOLDER + '/' + shortcode)
             returnFile = ""
             for file in dir:
@@ -60,12 +60,12 @@ def download():
             yt = YouTube(url)
             # Append v or a respectively if its an audio or video file
             if audio_only:
-                video_stream = yt.streams.filter(
-                    only_audio=audio_only, file_extension="mp4").first()
+                video_streams = yt.streams.filter(only_audio=True).order_by('abr').desc()
+                video_stream = video_streams.first()  # This should be the highest bitrate stream
                 video_filename = f'a-{video_stream.default_filename.split(".")[0]}.{extension}'
             else:
                 video_stream = yt.streams.filter(progressive=True,
-                                                file_extension=extension).first()
+                                                 file_extension=extension).first()
                 video_filename = f'v-{video_stream.default_filename.split(".")[0]}.{extension}'
 
             if check_cache(video_filename):
