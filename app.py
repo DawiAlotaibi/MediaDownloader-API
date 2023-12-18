@@ -10,13 +10,7 @@ app = Flask(__name__)
 DOWNLOAD_FOLDER = "downloads"
 
 
-# TODO: Download playlists
 # TODO: Handle when 404?
-# TODO: Download by searching for a video
-# TODO: Download video with no audio
-# TODO: Add logging for debugging
-# TODO: Add other platforms
-# TODO: Implement resolution for caching
 # TODO: Add documentation for route usage (params, etc)
 
 
@@ -92,16 +86,15 @@ def check_cache(filename):
         return False
 
 
-@app.route('/videos/<filename>', methods=['DELETE'])
+@app.route('/delete/<filename>', methods=['DELETE'])
 def delete_video(filename):
-    # Ensure the file exists before attempting deletion
-    file_path = os.path.join(DOWNLOAD_FOLDER, filename)
-    if os.path.exists(file_path):
-        os.remove(file_path)
-        return jsonify({"status": "success", "message": f"{filename} deleted successfully"})
+    if request.headers["Authorization"].split(" ")[1] == os.environ.get('TOKEN'):
+        file_path = os.path.join(DOWNLOAD_FOLDER, filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            return jsonify({"status": "success", "message": f"{filename} deleted successfully"})
+        else:
+            return jsonify({"error": f"{filename} not found"}), 404
     else:
-        return jsonify({"error": f"{filename} not found"}), 404
+        return jsonify({"UNAUTHORIZED": f"You are not authorized"}), 401
 
-
-if __name__ == '__main__':
-    app.run(debug=True)
