@@ -103,5 +103,3 @@ def delete_video(filename):
         return jsonify({"error": f"{filename} not found"}), 404
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
