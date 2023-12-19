@@ -1,6 +1,6 @@
 # MediaDownloader-API
 
-This is a list of APIs to download videos from various platforms.
+This is a list of APIs to download videos from various platforms. You can use a publicly hosted version of the API at https://media-downloader.online/
 
 #### Supported Platforms
 
