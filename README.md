@@ -55,6 +55,7 @@ Payload structure:
 - Download video with no audio
 - Implement resolution for caching
 - Download playlists
+- Create an interface
 
 ---
 
